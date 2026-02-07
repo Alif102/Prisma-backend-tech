@@ -7,14 +7,17 @@ dotenv.config();
 
 let server: Server | null = null;
 
+let isConnected = false;
+
 async function connectToDB() {
-  try {
-    await prisma.$connect()
-    console.log("*** DB connection successfull!!")
-  } catch (error) {
-    console.log("*** DB connection failed!")
-    process.exit(1);
-  }
+  if (isConnected) return;
+  await prisma.$connect();
+  console.log("*** DB connected");
+  isConnected = true;
+}
+export default async function handler(req: any, res: any) {
+  await connectToDB();
+  return app(req, res);
 }
 
 async function startServer() {
@@ -78,5 +81,4 @@ function handleProcessEvents() {
   });
 }
 
-// Start the application
 startServer();
